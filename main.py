@@ -30,6 +30,13 @@ def centovaGetLoginCookie(url, username, password):
     r = requests.head(url, data=payload, allow_redirects=False)
     return r.cookies['centovacast']
 
+def getSongList():
+    cookies = {'centovacast': centovaCookie}
+    songfile = json.loads(requests.get(SONG_TRACKS_URL, cookies=cookies).text)
+    songs = songfile['data'][1]
+    artists = songfile['data'][2]
+    return {'songs': songs, 'artists': artists}
+
 @client.event
 async def on_ready():
     print('------')
@@ -100,10 +107,9 @@ async def on_message(message):
         if len(str(message.content)) == 7:
             await client.send_message(message.channel, "**I'm sorry, what was that? Didn't quite catch that.** \n Please enter your search query after the command. \n eg. `!search Rainbow Dash`")
         else:
-            cookies = {'centovacast': centovaCookie}
-            songfile = json.loads(requests.get(SONG_TRACKS_URL, cookies=cookies).text)
-            songs = songfile['data'][1]
-            artists = songfile['data'][2]
+            getSongs = getSongList()
+            songs = getSongs['songs']
+            artists = getSongs['artists']
             query = str(message.content).split(' ', 1)[1]
             count = 0
             botmessage = "**__Search Songs: " + query + "__**\n[ID | Artist | Title]\n"
@@ -121,10 +127,9 @@ async def on_message(message):
         if len(msg) == 1:
             await client.send_message(message.channel, "**I just don't know what went wrong!** \n Please enter your requested song id after the command. \n eg. `!request 14982` \n _Remember: you can search for the song with the `!search` command!_")
         else:
-            cookies = {'centovacast': centovaCookie}
-            songfile = json.loads(requests.get(SONG_TRACKS_URL, cookies=cookies).text)
-            songs = songfile['data'][1]
-            artists = songfile['data'][2]
+            getSongs = getSongList()
+            songs = getSongs['songs']
+            artists = getSongs['artists']
             idquery = msg[1]
             status = False
             for element in songs:
