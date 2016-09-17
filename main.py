@@ -144,6 +144,27 @@ async def on_message(message):
                         break
             if status == False:
                 await client.send_message(message.channel, "Song ID not found!")
+    elif message.content.startswith('!list'):
+        await client.send_typing(message.channel)
+        if len(str(message.content)) >= 7:
+            index = str(message.content)[str(message.content).find("!list") + 6:]
+            try:
+                index = abs(int(index))
+            except:
+                index = 1
+        else:
+            index = 1
+        getSongs = getSongList()
+        songs = getSongs['songs']
+        artists = getSongs['artists']
+        count = len(songs)
+        text = "**__Song List: Page " + str(index) + " of " + str(round(int(count)/10)) + "__**\n"
+        text = text + "[ID | Artist | Title]\n"
+        t = songs
+        t = t[(int(float(index)) - 1) * 10:(int(float(index)) - 1)*10+10]
+        for x in t:
+            text = text + "**" + str(x["id"]) + "** | " + artists['i' + str(x['artistid'])] + " | " + x["title"] + "\n"
+        await client.send_message(message.channel, text)
     elif message.content.startswith('!joinvoice') or message.content.startswith('!jv'):
         await client.send_typing(message.channel)
         if int(str(message.author.id)) in BOT_ADMINS or int(str(message.author.voice_channel.id)) in TRUSTED_VOICE_CHANNELS:
