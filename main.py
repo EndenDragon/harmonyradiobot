@@ -46,8 +46,6 @@ async def on_ready():
     radioMeta = ""
     global centovaCookie
     centovaCookie = centovaGetLoginCookie(CENTOVACAST_LOGIN_URL, CENTOVACAST_USERNAME, CENTOVACAST_PASSWORD)
-    global currentlyStreaming
-    currentlyStreaming = False
     c = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice)
     global v
     v = await client.join_voice_channel(c)
@@ -60,13 +58,7 @@ async def on_ready():
         text = getRadioSong()
         if text != radioMeta:
             radioMeta = text
-            global currentlyStreaming
-            if currentlyStreaming:
-                global streamingURL
-                status = Game(name=text, url=streamingURL, type=1)
-            else:
-                global streamingURL
-                status = Game(name=text, type=0)
+            status = Game(name=text, type=0)
             await client.change_status(game=status, idle=False)
         await asyncio.sleep(10)
 
