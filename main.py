@@ -37,6 +37,13 @@ def getSongList():
     artists = songfile['data'][2]
     return {'songs': songs, 'artists': artists}
 
+def isBotAdmin(message):
+    author = client.get_server(str(MAIN_SERVER)).get_member(message.author.id)
+    for a in author.roles:
+        if a.name.lower() == ADMIN_ROLE_NAME:
+            return True
+    return False
+
 @client.event
 async def on_ready():
     print('------')
@@ -167,7 +174,7 @@ async def on_message(message):
         await client.send_message(message.channel, text)
     elif message.content.startswith('!joinvoice') or message.content.startswith('!jv'):
         await client.send_typing(message.channel)
-        if int(str(message.author.id)) in BOT_ADMINS or int(str(message.author.voice_channel.id)) in TRUSTED_VOICE_CHANNELS:
+        if isBotAdmin(message) or int(str(message.author.voice_channel.id)) in TRUSTED_VOICE_CHANNELS:
             c = discord.utils.get(message.server.channels, id=message.author.voice_channel.id)
             global v
             v = await client.join_voice_channel(c)
@@ -178,14 +185,14 @@ async def on_message(message):
             await client.send_message(message.channel, "I'm sorry, this is an **admin only** command!")
     elif message.content.startswith('!disconnectvoice') or message.content.startswith('!dv'):
         await client.send_typing(message.channel)
-        if int(str(message.author.id)) in BOT_ADMINS:
+        if isBotAdmin(message):
             await v.disconnect()
             await client.send_message(message.channel, "Successfully disconnected from the voice channel!")
         else:
             await client.send_message(message.channel, "I'm sorry, this is an **admin only** command!")
     elif message.content.startswith('!changeavatar'):
         await client.send_typing(message.channel)
-        if int(str(message.author.id)) in BOT_ADMINS:
+        if isBotAdmin(message):
             f = urlopen(str(message.content)[13:])
             await client.edit_profile(avatar=f.read())
             await client.send_message(message.channel, "Successfully changed the avatar to " + str(message.content)[13:] + "!")
@@ -193,7 +200,7 @@ async def on_message(message):
             await client.send_message(message.channel, "I'm sorry, this is an **admin only** command!")
     elif message.content.startswith('!restart'):
         await client.send_typing(message.channel)
-        if int(str(message.author.id)) in BOT_ADMINS:
+        if isBotAdmin(message):
             await client.send_message(message.channel, "HarmonyBot is restarting...")
             await client.logout()
             sys.exit("Bot Shutting Down... (User Invoked)")
