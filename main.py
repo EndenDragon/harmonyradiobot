@@ -133,10 +133,9 @@ async def on_message(message):
             idquery = msg[1]
             status = False
             for element in songs:
-                print(str(idquery) + str(element['id']))
                 if str(idquery) == str(element['id']):
                     req = requests.get(CENTOVACAST_REQUEST_URL+ "?m=request.submit&username=ponyharmony&artist={0}&title={1}&sender={2}&email=sssss@ss.com&dedi=myself".format(artists['i' + str(element['artistid'])],  element['title'], message.author.name))
-                    print(req.url)
+                    logging.info(req.url)
                     j = json.loads(req.text)
                     if j['type'] == "result":
                         status = True
