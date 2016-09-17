@@ -40,7 +40,7 @@ def getSongList():
 def isBotAdmin(message):
     author = client.get_server(str(MAIN_SERVER)).get_member(message.author.id)
     for a in author.roles:
-        if a.name.lower() == ADMIN_ROLE_NAME:
+        if a.name.lower() == ADMIN_ROLE_NAME.lower():
             return True
     return False
 
