@@ -79,6 +79,7 @@ async def on_message(message):
         `!nowplaying` - shows what is currently playing in the station
         `!search <query>` - search for a song's title or author with the given string
         `!request <id>` - make a song request to the station
+        `!list (index)` - list of the songs that the radio offers
         ----------------------
         `!joinvoice` - joins the voice channel with the person who sent the command
         `!disconnectvoice` - disconnect from the voice channel
