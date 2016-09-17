@@ -13,7 +13,7 @@ import requests
 import json
 
 client = discord.Client()
-logging.basicConfig(level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(filename='harmonybot.log',level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('HarmonyBot')
 
 currentDate = datetime.datetime.now().date()
