@@ -123,7 +123,7 @@ async def on_message(message):
             botmessage = "**__Search Songs: " + query + "__**\n[ID | Artist | Title]\n"
             for element in songs:
                 if count < 10:
-                    if query in str(artists['i' + str(element['artistid'])]).lower() or query in element['title'].lower():
+                    if query.lower() in str(artists['i' + str(element['artistid'])]).lower() or query.lower() in element['title'].lower():
                         botmessage = botmessage + "**" + str(element['id']) + "** | " + artists['i' + str(element['artistid'])] + " | " + element['title'] + "\n"
                         count = count + 1
                 else:
