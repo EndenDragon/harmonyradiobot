@@ -8,6 +8,7 @@ while true; do
        echo "Running git update task"
        git reset --hard
        git pull
+       chmod a+x ./run.sh
     fi
     echo "Bot exited"
 done
