@@ -148,7 +148,8 @@ async def on_message(message):
                     j = json.loads(req.text)
                     if j['type'] == "result":
                         status = True
-                        await client.send_message(message.channel, j['data'][0])
+                        retmsg =  message.author.mention + ", "+ j['data'][0] + "\n*(#" + str(element['id']) + ") " + str(element['title']) + ", by " + artists['i' + str(element['artistid'])] + "*"
+                        await client.send_message(message.channel, retmsg)
                         break
             if status == False:
                 await client.send_message(message.channel, "Song ID not found!")
