@@ -121,14 +121,17 @@ async def on_message(message):
             artists = getSongs['artists']
             query = str(message.content).split(' ', 1)[1]
             count = 0
+            overcount = 0
             botmessage = "**__Search Songs: " + query + "__**\n[ID | Artist | Title]\n"
             for element in songs:
-                if count < 10:
-                    if query.lower() in str(artists['i' + str(element['artistid'])]).lower() or query.lower() in element['title'].lower():
+                if query.lower() in str(artists['i' + str(element['artistid'])]).lower() or query.lower() in element['title'].lower():
+                    if count < 10:
                         botmessage = botmessage + "**" + str(element['id']) + "** | " + artists['i' + str(element['artistid'])] + " | " + element['title'] + "\n"
                         count = count + 1
-                else:
-                    break
+                    else:
+                        overcount = overcount + 1
+            if overcount != 0:
+                botmessage = botmessage + "*...and " + str(overcount) + " more results not shown*"
             await client.send_message(message.channel, botmessage)
     elif message.content.lower().startswith('!request') or message.content.lower().startswith('!req'):
         await client.send_typing(message.channel)
