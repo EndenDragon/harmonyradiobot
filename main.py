@@ -68,7 +68,8 @@ async def on_ready():
     while True:
         if currentDate != datetime.datetime.now().date():
             await client.logout()
-            sys.exit("Bot Shutting Down... (Daily Restart)")
+            logging.info("Bot Shutting Down... (Daily Restart)")
+            sys.exit(1)
         text = getRadioSong()
         if text != radioMeta:
             radioMeta = text
@@ -203,7 +204,12 @@ async def on_message(message):
         if isBotAdmin(message):
             await client.send_message(message.channel, "HarmonyBot is restarting...")
             await client.logout()
-            sys.exit("Bot Shutting Down... (User Invoked)")
+            if len(message.content.split()) != 1 and message.content.split()[1].lower() == 'update':
+                logging.info("Bot Shutting Down... (User Invoked w/update)")
+                sys.exit(2)
+            else:
+                logging.info("Bot Shutting Down... (User Invoked)")
+                sys.exit(1)
         else:
             await client.send_message(message.channel, "I'm sorry, this is an **admin only** command!")
     elif message.content.lower().startswith('!hug'):
