@@ -96,7 +96,7 @@ async def on_message(message):
         Command parameters: `<required>` `(optional)`
         """
         await client.send_message(message.channel, commands)
-    elif message.content.startswith('!about'):
+    elif message.content.lower().startswith('!about'):
         await client.send_typing(message.channel)
         out = subprocess.getoutput("git rev-parse --short master")
         about = """**Harmony Radio Bot 🤖** by EndenDragon
@@ -105,12 +105,12 @@ async def on_message(message):
         http://ponyharmonylive.com/
         """.format(out)
         await client.send_message(message.channel, about)
-    elif message.content.startswith('!nowplaying') or message.content.startswith('!np'):
+    elif message.content.lower().startswith('!nowplaying') or message.content.lower().startswith('!np'):
         await client.send_typing(message.channel)
         hr_txt = getRadioSong()
         text = "**Now Playing:** " + str(hr_txt)
         await client.send_message(message.channel, text)
-    elif message.content.startswith('!search'):
+    elif message.content.lower().startswith('!search'):
         await client.send_typing(message.channel)
         if len(str(message.content)) == 7:
             await client.send_message(message.channel, "**I'm sorry, what was that? Didn't quite catch that.** \n Please enter your search query after the command. \n eg. `!search Rainbow Dash`")
@@ -129,7 +129,7 @@ async def on_message(message):
                 else:
                     break
             await client.send_message(message.channel, botmessage)
-    elif message.content.startswith('!request') or message.content.startswith('!req'):
+    elif message.content.lower().startswith('!request') or message.content.lower().startswith('!req'):
         await client.send_typing(message.channel)
         msg = message.content.split(" ", 1)
         if len(msg) == 1:
@@ -151,7 +151,7 @@ async def on_message(message):
                         break
             if status == False:
                 await client.send_message(message.channel, "Song ID not found!")
-    elif message.content.startswith('!list'):
+    elif message.content.lower().startswith('!list'):
         await client.send_typing(message.channel)
         if len(str(message.content)) >= 7:
             index = str(message.content)[str(message.content).find("!list") + 6:]
@@ -172,7 +172,7 @@ async def on_message(message):
         for x in t:
             text = text + "**" + str(x["id"]) + "** | " + artists['i' + str(x['artistid'])] + " | " + x["title"] + "\n"
         await client.send_message(message.channel, text)
-    elif message.content.startswith('!joinvoice') or message.content.startswith('!jv'):
+    elif message.content.lower().startswith('!joinvoice') or message.content.lower().startswith('!jv'):
         await client.send_typing(message.channel)
         if isBotAdmin(message) or int(str(message.author.voice_channel.id)) in TRUSTED_VOICE_CHANNELS:
             c = discord.utils.get(message.server.channels, id=message.author.voice_channel.id)
@@ -183,14 +183,14 @@ async def on_message(message):
             player.start()
         else:
             await client.send_message(message.channel, "I'm sorry, this is an **admin only** command!")
-    elif message.content.startswith('!disconnectvoice') or message.content.startswith('!dv'):
+    elif message.content.lower().startswith('!disconnectvoice') or message.content.lower().startswith('!dv'):
         await client.send_typing(message.channel)
         if isBotAdmin(message):
             await v.disconnect()
             await client.send_message(message.channel, "Successfully disconnected from the voice channel!")
         else:
             await client.send_message(message.channel, "I'm sorry, this is an **admin only** command!")
-    elif message.content.startswith('!changeavatar'):
+    elif message.content.lower().startswith('!changeavatar'):
         await client.send_typing(message.channel)
         if isBotAdmin(message):
             f = urlopen(str(message.content)[13:])
@@ -198,7 +198,7 @@ async def on_message(message):
             await client.send_message(message.channel, "Successfully changed the avatar to " + str(message.content)[13:] + "!")
         else:
             await client.send_message(message.channel, "I'm sorry, this is an **admin only** command!")
-    elif message.content.startswith('!restart'):
+    elif message.content.lower().startswith('!restart'):
         await client.send_typing(message.channel)
         if isBotAdmin(message):
             await client.send_message(message.channel, "HarmonyBot is restarting...")
@@ -206,7 +206,7 @@ async def on_message(message):
             sys.exit("Bot Shutting Down... (User Invoked)")
         else:
             await client.send_message(message.channel, "I'm sorry, this is an **admin only** command!")
-    elif message.content.startswith('!hug'):
+    elif message.content.lower().startswith('!hug'):
         mentions = message.mentions
         members = ""
         for x in mentions:
