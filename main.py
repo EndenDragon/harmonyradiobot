@@ -44,6 +44,15 @@ def isBotAdmin(message):
             return True
     return False
 
+def postListenersCount():
+    voicechannelmembers = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice).voice_members
+    count = 0
+    for m in voicechannelmembers:
+        if not m.deaf or not m.self_deaf:
+            count = count + 1
+    payload = {'listeners': count}
+    requests.post(METADATA_URL, data=payload)
+
 @client.event
 async def on_ready():
     print('------')
@@ -75,6 +84,7 @@ async def on_ready():
             radioMeta = text
             status = Game(name=text, type=0)
             await client.change_status(game=status, idle=False)
+        postListenersCount()
         await asyncio.sleep(10)
 
 @client.event
