@@ -48,7 +48,7 @@ def postListenersCount():
     voicechannelmembers = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice).voice_members
     count = 0
     for m in voicechannelmembers:
-        if not m.deaf or not m.self_deaf:
+        if not m.voice.deaf and not m.voice.self_deaf and not m.bot:
             count = count + 1
     payload = {'listeners': count}
     requests.post(METADATA_URL, data=payload)
