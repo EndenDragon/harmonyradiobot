@@ -104,7 +104,7 @@ async def on_message(message):
         `!cambiaravatar <URL>` - Cambia la imagen del bot mediante URL.
         `!reiniciar` - Reinicia el bot.
 
-        Parametros de comando: `<requerido>` `(opcional)`
+        Parametros de comandos: `<requerido>` `(opcional)`
         """
 
         #         """**List of commands:**
@@ -146,7 +146,7 @@ async def on_message(message):
     elif message.content.lower().startswith('!buscar'): # !search
         await client.send_typing(message.channel)
         if len(str(message.content)) == 7:
-            await client.send_message(message.channel, "**Perdon...que? No entendi eso.** \n Porfavor ingresa tu busqueda despues del comando. \n eg. `!buscar Rainbow Dash`") # **I'm sorry, what was that? Didn't quite catch that.** \n Please enter your search query after the command. \n eg. `!search Rainbow Dash`
+            await client.send_message(message.channel, "**Perdon...que? No entendi eso.** \n Porfavor ingresa tu busqueda despues del comando. \n ej. `!buscar Rainbow Dash`") # **I'm sorry, what was that? Didn't quite catch that.** \n Please enter your search query after the command. \n eg. `!search Rainbow Dash`
         else:
             getSongs = getSongList()
             songs = getSongs['songs']
@@ -169,7 +169,7 @@ async def on_message(message):
         await client.send_typing(message.channel)
         msg = message.content.split(" ", 1)
         if len(msg) == 1:
-            await client.send_message(message.channel, "**I just don't know what went wrong!** \n Porfavor ingresa la Id de tu peticion despues del comando. \n eg. `!pedir 14982` \n _Recuerda: puedes buscar canciones con el comando `!buscar`_") #"**I just don't know what went wrong!** \n Please enter your requested song id after the command. \n eg. `!request 14982` \n _Remember: you can search for the song with the `!search` command!_"
+            await client.send_message(message.channel, "**I just don't know what went wrong!** \n Porfavor ingresa la ID de tu peticion despues del comando. \n ej. `!pedir 14982` \n _Recuerda: Puedes buscar canciones con el comando `!buscar`_") #"**I just don't know what went wrong!** \n Please enter your requested song id after the command. \n eg. `!request 14982` \n _Remember: you can search for the song with the `!search` command!_"
         else:
             getSongs = getSongList()
             songs = getSongs['songs']
@@ -187,7 +187,7 @@ async def on_message(message):
                         await client.send_message(message.channel, retmsg)
                         break
             if status == False:
-                await client.send_message(message.channel, "ID de cancion no encontrado!") #"Song ID not found!"
+                await client.send_message(message.channel, "ID de cancion no encontrada!") #"Song ID not found!"
     elif message.content.lower().startswith('!lista'): # !list
         await client.send_typing(message.channel)
         if len(str(message.content)) >= 7:
@@ -224,7 +224,7 @@ async def on_message(message):
         await client.send_typing(message.channel)
         if isBotAdmin(message):
             await v.disconnect()
-            await client.send_message(message.channel, "Desconectado del canal de voz cpn exito!") #"Successfully disconnected from the voice channel!"
+            await client.send_message(message.channel, "Desconectado del canal de voz con exito!") #"Successfully disconnected from the voice channel!"
         else:
             await client.send_message(message.channel, "Lo siento este es un comando **solo para el admin**!") #"I'm sorry, this is an **admin only** command!"
     elif message.content.lower().startswith('!cambiaravatar'): # !changeavatar
