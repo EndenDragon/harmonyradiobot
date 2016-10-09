@@ -30,9 +30,17 @@ def centovaGetLoginCookie(url, username, password):
     r = requests.head(url, data=payload, allow_redirects=False)
     return r.cookies['centovacast']
 
+def centovaLogin():
+    global centovaCookie
+    centovaCookie = centovaGetLoginCookie(CENTOVACAST_LOGIN_URL, CENTOVACAST_USERNAME, CENTOVACAST_PASSWORD)
+
 def getSongList():
     cookies = {'centovacast': centovaCookie}
-    songfile = json.loads(requests.get(SONG_TRACKS_URL, cookies=cookies).text)
+    songfile = requests.get(SONG_TRACKS_URL, cookies=cookies).text
+    songfile = json.loads(songfile)
+    if songfile['type'] == "error":
+        centovaLogin()
+        songfile = json.loads(requests.get(SONG_TRACKS_URL, cookies=cookies).text)
     songs = songfile['data'][1]
     artists = songfile['data'][2]
     return {'songs': songs, 'artists': artists}
@@ -45,13 +53,14 @@ def isBotAdmin(message):
     return False
 
 def postListenersCount():
-    voicechannelmembers = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice).voice_members
-    count = 0
-    for m in voicechannelmembers:
-        if not m.voice.deaf and not m.voice.self_deaf and not m.bot:
-            count = count + 1
-    payload = {'listeners': count}
-    requests.post(METADATA_URL, data=payload)
+    if ENABLE_POSTING_LISTENERS:
+        voicechannelmembers = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice).voice_members
+        count = 0
+        for m in voicechannelmembers:
+            if not m.voice.deaf and not m.voice.self_deaf and not m.bot:
+                count = count + 1
+        payload = {'listeners': count}
+        requests.post(METADATA_URL, data=payload)
 
 @client.event
 async def on_ready():
@@ -67,8 +76,7 @@ async def on_ready():
         print(x.name)
     print('------')
     radioMeta = ""
-    global centovaCookie
-    centovaCookie = centovaGetLoginCookie(CENTOVACAST_LOGIN_URL, CENTOVACAST_USERNAME, CENTOVACAST_PASSWORD)
+    centovaLogin()
     c = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice)
     global v
     v = await client.join_voice_channel(c)
