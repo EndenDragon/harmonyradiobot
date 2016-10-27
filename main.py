@@ -5,6 +5,7 @@ import asyncio
 import logging
 from urllib.request import urlopen
 import urllib.parse
+from html import unescape
 import subprocess
 import time
 import datetime
@@ -23,7 +24,7 @@ def getRadioSong():
     response = urlopen(METADATA_URL)
     xsl = response.read()
     hr_json = str(xsl.decode("utf-8"))
-    return hr_json[hr_json.find("<SONGTITLE>")+11:hr_json.find("</SONGTITLE>")]
+    return unescape(hr_json[hr_json.find("<SONGTITLE>")+11:hr_json.find("</SONGTITLE>")])
 
 def centovaGetLoginCookie(url, username, password):
     payload = {'username': username, 'password': password, 'login': 'Login'}
