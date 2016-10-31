@@ -19,9 +19,15 @@ logger = logging.getLogger('HarmonyBot')
 
 currentDate = datetime.datetime.now().date()
 centovaCookie = ""
+backupMetadata = False
 
 def getRadioSong():
-    response = urlopen(METADATA_URL)
+    try:
+        response = urlopen(METADATA_URL)
+        backupMetadata = False
+    except:
+        response = urlopen(METADATA_BACKUP_URL)
+        backupMetadata = True
     xsl = response.read()
     hr_json = str(xsl.decode("utf-8"))
     return unescape(hr_json[hr_json.find("<SONGTITLE>")+11:hr_json.find("</SONGTITLE>")])
@@ -54,7 +60,7 @@ def isBotAdmin(message):
     return False
 
 def postListenersCount():
-    if ENABLE_POSTING_LISTENERS:
+    if ENABLE_POSTING_LISTENERS and not backupMetadata:
         voicechannelmembers = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice).voice_members
         count = 0
         for m in voicechannelmembers:
