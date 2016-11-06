@@ -20,6 +20,8 @@ logger = logging.getLogger('HarmonyBot')
 currentDate = datetime.datetime.now().date()
 centovaCookie = ""
 backupMetadata = False
+lastMetaUpdate = datetime.datetime.now()
+curSongLength = 0
 
 def getRadioSong():
     try:
@@ -69,6 +71,19 @@ def postListenersCount():
         payload = {'listeners': count}
         requests.post(METADATA_URL, data=payload)
 
+def updateCurrentSongLength(currentsong):
+    gitSong = getSongList()
+    songs = gitSong["songs"]
+    artists = gitSong["artists"]
+    cursong = currentsong[currentsong.index("-")+2:currentsong.index("[")-1]
+    curartist = currentsong[:currentsong.index("-")-1]
+    global curSongLength
+    for s in songs:
+        if cursong in s["title"] and curartist in artists['i' + str(s['artistid'])]:
+            curSongLength = s["length"]
+            return
+    curSongLength = 0
+
 @client.event
 async def on_ready():
     print('------')
@@ -98,9 +113,12 @@ async def on_ready():
         if text != radioMeta:
             radioMeta = text
             status = Game(name=text, type=0)
+            global lastMetaUpdate
+            lastMetaUpdate = datetime.datetime.now()
+            updateCurrentSongLength(radioMeta)
             await client.change_status(game=status, idle=False)
         postListenersCount()
-        await asyncio.sleep(10)
+        await asyncio.sleep(5)
 
 @client.event
 async def on_message(message):
@@ -157,6 +175,9 @@ async def on_message(message):
         await client.send_typing(message.channel)
         hr_txt = getRadioSong()
         text = "**Estas escuchando:** " + str(hr_txt) # **Now Playing:**
+        global curSongLength
+        global lastMetaUpdate
+        text = text + " `[" + str(datetime.timedelta(seconds=int((datetime.datetime.now() - lastMetaUpdate).total_seconds()))) + " / " + str(datetime.timedelta(seconds=int(curSongLength))) + "]`"
         await client.send_message(message.channel, text)
     elif message.content.lower().startswith('!buscar'): # !search
         await client.send_typing(message.channel)
