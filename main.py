@@ -75,7 +75,7 @@ def updateCurrentSongLength(currentsong):
     gitSong = getSongList()
     songs = gitSong["songs"]
     artists = gitSong["artists"]
-    cursong = currentsong[currentsong.index("-")+2:currentsong.index("[")-1]
+    cursong = currentsong[currentsong.index("-")+2:]
     curartist = currentsong[:currentsong.index("-")-1]
     global curSongLength
     for s in songs:
