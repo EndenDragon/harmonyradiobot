@@ -16,7 +16,9 @@ METADATA_URL = "http://ponyharmonylive.com/metadata"
 
 METADATA_BACKUP_URL = "http://epsilon.shoutca.st:8505/stats"
 
-SONG_TRACKS_URL = "https://epsilon.shoutca.st/client/rpc.php?m=playlist.get_tracks&p%5B%5D=2134"
+PLAYLIST_URL = "http://epsilon.shoutca.st/client/rpc.php?m=playlist.list_all"
+
+SONG_TRACKS_URL = "https://epsilon.shoutca.st/client/rpc.php?m=playlist.get_tracks&p%5B%5D="
 
 CENTOVACAST_USERNAME = "Rainbow"
 
