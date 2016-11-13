@@ -43,15 +43,24 @@ def centovaLogin():
     global centovaCookie
     centovaCookie = centovaGetLoginCookie(CENTOVACAST_LOGIN_URL, CENTOVACAST_USERNAME, CENTOVACAST_PASSWORD)
 
-def getSongList():
+def getCentova(url):
     cookies = {'centovacast': centovaCookie}
-    songfile = requests.get(SONG_TRACKS_URL, cookies=cookies).text
-    songfile = json.loads(songfile)
-    if songfile['type'] == "error":
+    f = requests.get(url, cookies=cookies).text
+    f = json.loads(f)
+    if f['type'] == "error":
         centovaLogin()
-        songfile = json.loads(requests.get(SONG_TRACKS_URL, cookies=cookies).text)
-    songs = songfile['data'][1]
-    artists = songfile['data'][2]
+        f = json.loads(requests.get(url, cookies=cookies).text)
+    return f["data"]
+
+def getSongList():
+    playlists = getCentova(PLAYLIST_URL)[0]
+    songs = []
+    artists = {}
+    for p in playlists:
+        s = getCentova(SONG_TRACKS_URL + str(p['id']))
+        if p["status"] == "enabled" and p["type"] == "general":
+            songs = s[1] + songs
+            artists.update(s[2])
     return {'songs': songs, 'artists': artists}
 
 def isBotAdmin(message):
