@@ -219,7 +219,7 @@ async def on_message(message):
             await client.send_message(message.channel, botmessage)
     elif message.content.lower().startswith('!pedir') or message.content.lower().startswith('!p'): # !request !req
         await client.send_typing(message.channel)
-        msg = message.content.split(" ", 1)
+        msg = message.content.split(None, 1)
         if len(msg) == 1:
             await client.send_message(message.channel, "**I just don't know what went wrong!** \n Porfavor ingresa la ID de tu peticion despues del comando. \n ej. `!pedir 14982` \n _Recuerda: Puedes buscar canciones con el comando `!buscar`_") #"**I just don't know what went wrong!** \n Please enter your requested song id after the command. \n eg. `!request 14982` \n _Remember: you can search for the song with the `!search` command!_"
         else:
