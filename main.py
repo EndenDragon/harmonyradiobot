@@ -203,7 +203,6 @@ async def on_message(message):
             await client.send_message(message.channel, "**Perdon...que? No entendi eso.** \n Porfavor ingresa tu busqueda despues del comando. \n ej. `!buscar Rainbow Dash`") # **I'm sorry, what was that? Didn't quite catch that.** \n Please enter your search query after the command. \n eg. `!search Rainbow Dash`
         else:
             getSongs = getSongList()
-            print(getSongList.cache_info())
             songs = getSongs['songs']
             artists = getSongs['artists']
             query = str(message.content).split(' ', 1)[1]
