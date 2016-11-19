@@ -6,7 +6,6 @@ import logging
 from urllib.request import urlopen
 import urllib.parse
 from html import unescape
-from functools import lru_cache
 import subprocess
 import time
 import datetime
@@ -23,6 +22,9 @@ centovaCookie = ""
 backupMetadata = False
 lastMetaUpdate = datetime.datetime.now()
 curSongLength = 0
+
+songCachedData = ''
+songCachedTime = 0
 
 def getRadioSong():
     try:
@@ -53,17 +55,22 @@ def getCentova(url):
         f = json.loads(requests.get(url, cookies=cookies).text)
     return f["data"]
 
-@lru_cache(maxsize=4)
 def getSongList():
-    playlists = getCentova(PLAYLIST_URL)[0]
-    songs = []
-    artists = {}
-    for p in playlists:
-        s = getCentova(SONG_TRACKS_URL + str(p['id']))
-        if p["status"] == "enabled" and p["type"] == "general":
-            songs = s[1] + songs
-            artists.update(s[2])
-    return {'songs': songs, 'artists': artists}
+    global songCachedData, songCachedTime
+    now = time.time()
+    if not songCachedData or now - songCachedTime > 60 * 60:
+        logging.debug('Refreshing song cache')
+        playlists = getCentova(PLAYLIST_URL)[0]
+        songs = []
+        artists = {}
+        for p in playlists:
+            s = getCentova(SONG_TRACKS_URL + str(p['id']))
+            if p["status"] == "enabled" and p["type"] == "general":
+                songs = s[1] + songs
+                artists.update(s[2])
+        songCachedData = {'songs': songs, 'artists': artists}
+        songCachedTime = time.time()
+    return songCachedData
 
 def isBotAdmin(message):
     author = client.get_server(str(MAIN_SERVER)).get_member(message.author.id)
