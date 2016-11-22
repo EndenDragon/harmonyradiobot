@@ -136,7 +136,7 @@ async def on_ready():
     c = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice)
     global v
     v = await client.join_voice_channel(c)
-    player = v.create_ffmpeg_player(MUSIC_STREAM_URL, stderr=subprocess.PIPE)
+    player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
     player.start()
     while True:
         global voiceOffline
