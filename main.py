@@ -26,6 +26,8 @@ curSongLength = 0
 songCachedData = ''
 songCachedTime = 0
 
+voiceOffline = 0
+
 def getRadioSong():
     try:
         response = urlopen(METADATA_URL)
@@ -35,7 +37,7 @@ def getRadioSong():
             response = urlopen(METADATA_BACKUP_URL)
             backupMetadata = True
         except:
-            return "Nada peculiar... :V" # Nothing peculiar
+            return "Nada en concreto :V" # Nothing in peculiar
     xsl = response.read()
     hr_json = str(xsl.decode("utf-8"))
     return unescape(hr_json[hr_json.find("<SONGTITLE>")+11:hr_json.find("</SONGTITLE>")])
@@ -134,21 +136,28 @@ async def on_ready():
     c = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice)
     global v
     v = await client.join_voice_channel(c)
-    player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
+    player = v.create_ffmpeg_player(MUSIC_STREAM_URL, stderr=subprocess.PIPE)
     player.start()
     while True:
+        global voiceOffline
+        if "stopped daemon" in str(player) and voiceOffline == 0:
+            voiceOffline = 1
         if currentDate != datetime.datetime.now().date():
             await client.logout()
             logging.info("Bot Shutting Down... (Daily Restart)")
             sys.exit(1)
         text = getRadioSong()
-        if text != radioMeta:
+        if text != radioMeta or voiceOffline == 1:
             radioMeta = text
             status = Game(name=text, type=0)
-            global lastMetaUpdate
-            lastMetaUpdate = datetime.datetime.now()
             updateCurrentSongLength(radioMeta)
-            await client.change_status(game=status, idle=False)
+            if voiceOffline != 1 and voiceOffline != 2:
+                global lastMetaUpdate
+                lastMetaUpdate = datetime.datetime.now()
+                await client.change_presence(game=status)
+            else:
+                voiceOffline = 2
+                await client.change_presence(game=status, status=discord.Status.dnd)
         postListenersCount()
         await asyncio.sleep(5)
 
