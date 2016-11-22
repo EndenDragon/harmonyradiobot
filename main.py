@@ -93,7 +93,12 @@ def postListenersCount():
         requests.post(METADATA_URL, data=payload)
 
 def updateCurrentSongLength(currentsong):
-    gitSong = getSongList()
+    global curSongLength
+    try:
+        gitSong = getSongList()
+    except:
+        curSongLength = 0
+        return
     songs = gitSong["songs"]
     artists = gitSong["artists"]
     if " - " in currentsong and " [" in currentsong:
@@ -105,7 +110,6 @@ def updateCurrentSongLength(currentsong):
     else:
         cursong = currentsong
         curartist = ""
-    global curSongLength
     for s in songs:
         if cursong in s["title"] and curartist in artists['i' + str(s['artistid'])]:
             curSongLength = s["length"]
