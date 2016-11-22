@@ -31,8 +31,11 @@ def getRadioSong():
         response = urlopen(METADATA_URL)
         backupMetadata = False
     except:
-        response = urlopen(METADATA_BACKUP_URL)
-        backupMetadata = True
+        try:
+            response = urlopen(METADATA_BACKUP_URL)
+            backupMetadata = True
+        except:
+            return "Nada peculiar... :V" # Nothing peculiar
     xsl = response.read()
     hr_json = str(xsl.decode("utf-8"))
     return unescape(hr_json[hr_json.find("<SONGTITLE>")+11:hr_json.find("</SONGTITLE>")])
