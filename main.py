@@ -215,16 +215,13 @@ async def on_message(message):
     elif message.content.lower().startswith('!nowplaying') or message.content.lower().startswith('!np'):
         await client.send_typing(message.channel)
         hr_txt = getRadioSong()
-        text = "**Estas escuchando:** " + str(hr_txt) # **Now Playing:**
         global curSongLength
         global lastMetaUpdate
-        text = text + " `[" + str(datetime.timedelta(seconds=int((datetime.datetime.now() - lastMetaUpdate).total_seconds()))) + " / " + str(datetime.timedelta(seconds=int(curSongLength))) + "]`"
         timing = str(datetime.timedelta(seconds=int((datetime.datetime.now() - lastMetaUpdate).total_seconds()))) + " / " + str(datetime.timedelta(seconds=int(curSongLength)))
         em = Embed(colour=0xDEADBF)
-        em.set_author(name='Estas escuchando', icon_url="http://orig03.deviantart.net/d7f9/f/2016/109/8/0/dj_pon3_by_tyuubatu-d9zgyrr.png")
+        em.set_author(name='Estas escuchando', icon_url="http://orig03.deviantart.net/d7f9/f/2016/109/8/0/dj_pon3_by_tyuubatu-d9zgyrr.png") # **Now Playing:**
         em.add_field(name=str(hr_txt), value=timing)
         await client.send_message(message.channel, embed=em)
-        #await client.send_message(message.channel, text)
     elif message.content.lower().startswith('!buscar'): # !search
         await client.send_typing(message.channel)
         if len(str(message.content)) == 7:
