@@ -219,7 +219,7 @@ async def on_message(message):
         global lastMetaUpdate
         timing = str(datetime.timedelta(seconds=int((datetime.datetime.now() - lastMetaUpdate).total_seconds()))) + " / " + str(datetime.timedelta(seconds=int(curSongLength)))
         em = Embed(colour=0xDEADBF)
-        em.set_author(name='Estas escuchando', url="http://ponyharmonylive.com/", icon_url=client.user.default_avatar_url) # **Now Playing:**
+        em.set_author(name='Estas escuchando', url="http://ponyharmonylive.com/", icon_url="http://orig03.deviantart.net/d7f9/f/2016/109/8/0/dj_pon3_by_tyuubatu-d9zgyrr.png") # **Now Playing:**
         em.add_field(name=str(hr_txt), value=timing)
         await client.send_message(message.channel, message.author.mention, embed=em)
     elif message.content.lower().startswith('!buscar'): # !search
@@ -234,7 +234,7 @@ async def on_message(message):
             query = str(message.content).split(' ', 1)[1]
             count = 0
             overcount = 0
-            em.set_author(name="Buscar canciones: " + query, url="http://ponyharmonylive.com/", icon_url=client.user.default_avatar_url) #"**__Search Songs: " + query
+            em.set_author(name="Buscar canciones: " + query, url="http://ponyharmonylive.com/", icon_url="http://orig03.deviantart.net/d7f9/f/2016/109/8/0/dj_pon3_by_tyuubatu-d9zgyrr.png") #"**__Search Songs: " + query
             for element in songs:
                 if query.lower() in str(artists['i' + str(element['artistid'])]).lower() or query.lower() in element['title'].lower():
                     if count < 20:
@@ -264,7 +264,7 @@ async def on_message(message):
                     if j['type'] == "result":
                         status = True
                         em = Embed(colour=0xDEADBF)
-                        em.set_author(name="📬", url="http://ponyharmonylive.com/", icon_url=client.user.default_avatar_url)
+                        em.set_author(name="📬", url="http://ponyharmonylive.com/", icon_url="http://orig03.deviantart.net/d7f9/f/2016/109/8/0/dj_pon3_by_tyuubatu-d9zgyrr.png")
                         em.add_field(name="**#" + str(element['id']) + "** " + str(element['title']), value=artists['i' + str(element['artistid'])])
                         await client.send_message(message.channel, message.author.mention + ", "+ j['data'][0], embed=em)
                         break
