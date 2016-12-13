@@ -1,6 +1,6 @@
 from config import *
 import discord
-from discord import Game, Channel, Server
+from discord import Game, Channel, Server, Embed
 import asyncio
 import logging
 from urllib.request import urlopen
@@ -215,33 +215,36 @@ async def on_message(message):
     elif message.content.lower().startswith('!nowplaying') or message.content.lower().startswith('!np'):
         await client.send_typing(message.channel)
         hr_txt = getRadioSong()
-        text = "**Estas escuchando:** " + str(hr_txt) # **Now Playing:**
         global curSongLength
         global lastMetaUpdate
-        text = text + " `[" + str(datetime.timedelta(seconds=int((datetime.datetime.now() - lastMetaUpdate).total_seconds()))) + " / " + str(datetime.timedelta(seconds=int(curSongLength))) + "]`"
-        await client.send_message(message.channel, text)
+        timing = str(datetime.timedelta(seconds=int((datetime.datetime.now() - lastMetaUpdate).total_seconds()))) + " / " + str(datetime.timedelta(seconds=int(curSongLength)))
+        em = Embed(colour=0xDEADBF)
+        em.set_author(name='Estas escuchando', url="http://ponyharmonylive.com/", icon_url=client.user.default_avatar_url) # **Now Playing:**
+        em.add_field(name=str(hr_txt), value=timing)
+        await client.send_message(message.channel, message.author.mention, embed=em)
     elif message.content.lower().startswith('!buscar'): # !search
         await client.send_typing(message.channel)
         if len(str(message.content)) == 7:
             await client.send_message(message.channel, "**Perdon...que? No entendi eso.** \n Porfavor ingresa tu busqueda despues del comando. \n ej. `!buscar Rainbow Dash`") # **I'm sorry, what was that? Didn't quite catch that.** \n Please enter your search query after the command. \n eg. `!search Rainbow Dash`
         else:
+            em = Embed(colour=0xDEADBF)
             getSongs = getSongList()
             songs = getSongs['songs']
             artists = getSongs['artists']
             query = str(message.content).split(' ', 1)[1]
             count = 0
             overcount = 0
-            botmessage = "**__Buscar canciones: " + query + "__**\n[ID | Artista | Titulo]\n" #"**__Search Songs: " + query + "__**\n[ID | Artist | Title]\n"
+            em.set_author(name="Buscar canciones: " + query, url="http://ponyharmonylive.com/", icon_url=client.user.default_avatar_url) #"**__Search Songs: " + query
             for element in songs:
                 if query.lower() in str(artists['i' + str(element['artistid'])]).lower() or query.lower() in element['title'].lower():
                     if count < 20:
-                        botmessage = botmessage + "**" + str(element['id']) + "** | " + artists['i' + str(element['artistid'])] + " | " + element['title'] + "\n"
+                        em.add_field(name=str(element['id']), value="**" + element['title'] + "**\n*" + artists['i' + str(element['artistid'])] + "*")
                         count = count + 1
                     else:
                         overcount = overcount + 1
             if overcount != 0:
-                botmessage = botmessage + "*...y " + str(overcount) + " aun mas no mostrado*" #"*...and " + str(overcount) + " more results not shown*"
-            await client.send_message(message.channel, botmessage)
+                em.add_field(name="*...y " + str(overcount) + " aun mas no mostrado*", value="\u200b", inline=False) #"*...and " + str(overcount) + " more results not shown*"
+            await client.send_message(message.channel, message.author.mention, embed=em)
     elif message.content.lower().startswith('!pedir') or message.content.lower().startswith('!p'): # !request !req
         await client.send_typing(message.channel)
         msg = message.content.split(None, 1)
@@ -260,8 +263,10 @@ async def on_message(message):
                     j = json.loads(req.text)
                     if j['type'] == "result":
                         status = True
-                        retmsg =  message.author.mention + ", "+ j['data'][0] + "\n*(#" + str(element['id']) + ") " + str(element['title']) + ", por " + artists['i' + str(element['artistid'])] + "*" #", by "
-                        await client.send_message(message.channel, retmsg)
+                        em = Embed(colour=0xDEADBF)
+                        em.set_author(name="📬", url="http://ponyharmonylive.com/", icon_url=client.user.default_avatar_url)
+                        em.add_field(name="**#" + str(element['id']) + "** " + str(element['title']), value=artists['i' + str(element['artistid'])])
+                        await client.send_message(message.channel, message.author.mention + ", "+ j['data'][0], embed=em)
                         break
             if status == False:
                 await client.send_message(message.channel, "ID de cancion no encontrada!") #"Song ID not found!"
