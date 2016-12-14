@@ -218,7 +218,7 @@ async def on_message(message):
         global curSongLength
         global lastMetaUpdate
         timing = str(datetime.timedelta(seconds=int((datetime.datetime.now() - lastMetaUpdate).total_seconds()))) + " / " + str(datetime.timedelta(seconds=int(curSongLength)))
-        em = Embed(colour=0xDEADBF)
+        em = Embed(colour=0x9BDBF5)
         em.set_author(name='Estas escuchando', url="http://ponyharmonylive.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png") # **Now Playing:**
         em.add_field(name=str(hr_txt), value=timing)
         await client.send_message(message.channel, message.author.mention, embed=em)
@@ -227,7 +227,7 @@ async def on_message(message):
         if len(str(message.content)) == 7:
             await client.send_message(message.channel, "**Perdon...que? No entendi eso.** \n Porfavor ingresa tu busqueda despues del comando. \n ej. `!buscar Rainbow Dash`") # **I'm sorry, what was that? Didn't quite catch that.** \n Please enter your search query after the command. \n eg. `!search Rainbow Dash`
         else:
-            em = Embed(colour=0xDEADBF)
+            em = Embed(colour=0x9BDBF5)
             getSongs = getSongList()
             songs = getSongs['songs']
             artists = getSongs['artists']
@@ -263,7 +263,7 @@ async def on_message(message):
                     j = json.loads(req.text)
                     if j['type'] == "result":
                         status = True
-                        em = Embed(colour=0xDEADBF)
+                        em = Embed(colour=0x9BDBF5)
                         em.set_author(name="📬", url="http://ponyharmonylive.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png")
                         em.add_field(name="**#" + str(element['id']) + "** " + str(element['title']), value=artists['i' + str(element['artistid'])])
                         await client.send_message(message.channel, message.author.mention + ", "+ j['data'][0], embed=em)
