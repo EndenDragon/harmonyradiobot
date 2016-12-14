@@ -203,13 +203,14 @@ async def on_message(message):
         about = """**Harmony Radio Bot 🤖** por EndenDragon
         Git revision: `{0}` | URL: https://github.com/EndenDragon/harmonyradiobot/commit/{0}
         Hecho con :heart: para Harmony Radio.
-        http://ponyharmonylive.com/
+        http://ponyharmony.com/
         """.format(out)
 
         # """**Harmony Radio Bot 🤖** by EndenDragon
         # Git revision: `{0}` | URL: https://github.com/EndenDragon/harmonyradiobot/commit/{0}
         # Made with :heart: for Harmony Radio.
-        # http://ponyharmonylive.com/
+        # http://
+        onylive.com/
         # """
         await client.send_message(message.channel, about)
     elif message.content.lower().startswith('!nowplaying') or message.content.lower().startswith('!np'):
@@ -219,7 +220,7 @@ async def on_message(message):
         global lastMetaUpdate
         timing = str(datetime.timedelta(seconds=int((datetime.datetime.now() - lastMetaUpdate).total_seconds()))) + " / " + str(datetime.timedelta(seconds=int(curSongLength)))
         em = Embed(colour=0x9BDBF5)
-        em.set_author(name='Estas escuchando', url="http://ponyharmonylive.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png") # **Now Playing:**
+        em.set_author(name='Estas escuchando', url="http://ponyharmony.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png") # **Now Playing:**
         em.add_field(name=str(hr_txt), value=timing)
         await client.send_message(message.channel, message.author.mention, embed=em)
     elif message.content.lower().startswith('!buscar'): # !search
@@ -234,7 +235,7 @@ async def on_message(message):
             query = str(message.content).split(' ', 1)[1]
             count = 0
             overcount = 0
-            em.set_author(name="Buscar canciones: " + query, url="http://ponyharmonylive.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png") #"**__Search Songs: " + query
+            em.set_author(name="Buscar canciones: " + query, url="http://ponyharmony.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png") #"**__Search Songs: " + query
             for element in songs:
                 if query.lower() in str(artists['i' + str(element['artistid'])]).lower() or query.lower() in element['title'].lower():
                     if count < 20:
@@ -264,7 +265,7 @@ async def on_message(message):
                     if j['type'] == "result":
                         status = True
                         em = Embed(colour=0x9BDBF5)
-                        em.set_author(name="📬", url="http://ponyharmonylive.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png")
+                        em.set_author(name="📬", url="http://ponyharmony.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png")
                         em.add_field(name="**#" + str(element['id']) + "** " + str(element['title']), value=artists['i' + str(element['artistid'])])
                         await client.send_message(message.channel, message.author.mention + ", "+ j['data'][0], embed=em)
                         break
