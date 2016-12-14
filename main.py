@@ -209,8 +209,7 @@ async def on_message(message):
         # """**Harmony Radio Bot 🤖** by EndenDragon
         # Git revision: `{0}` | URL: https://github.com/EndenDragon/harmonyradiobot/commit/{0}
         # Made with :heart: for Harmony Radio.
-        # http://
-        onylive.com/
+        # http://ponyharmony.com/
         # """
         await client.send_message(message.channel, about)
     elif message.content.lower().startswith('!nowplaying') or message.content.lower().startswith('!np'):
