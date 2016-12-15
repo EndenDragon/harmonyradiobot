@@ -46,6 +46,7 @@ def centovaGetLoginCookie(url, username, password):
     payload = {'username': username, 'password': password, 'login': 'Login'}
     r = requests.head(url, data=payload, allow_redirects=False)
     return r.cookies['centovacast']
+
 def centovaLogin():
     global centovaCookie
     centovaCookie = centovaGetLoginCookie(CENTOVACAST_LOGIN_URL, CENTOVACAST_USERNAME, CENTOVACAST_PASSWORD)
