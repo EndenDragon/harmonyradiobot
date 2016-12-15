@@ -108,6 +108,7 @@ def updateCurrentSongLength(currentsong):
         curartist = currentsong[:currentsong.index(" - ")]
     elif " - " in currentsong:
         cursong = currentsong[currentsong.index(" - ")+3:]
+        cursong = cursong[:len(cursong) -1]
         curartist = currentsong[:currentsong.index(" - ")]
     else:
         cursong = currentsong
