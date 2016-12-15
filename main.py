@@ -46,7 +46,6 @@ def centovaGetLoginCookie(url, username, password):
     payload = {'username': username, 'password': password, 'login': 'Login'}
     r = requests.head(url, data=payload, allow_redirects=False)
     return r.cookies['centovacast']
-
 def centovaLogin():
     global centovaCookie
     centovaCookie = centovaGetLoginCookie(CENTOVACAST_LOGIN_URL, CENTOVACAST_USERNAME, CENTOVACAST_PASSWORD)
@@ -63,7 +62,7 @@ def getCentova(url):
 def getSongList():
     global songCachedData, songCachedTime
     now = time.time()
-    if not songCachedData or now - songCachedTime > 60 * 60:
+    if not songCachedData or now - songCachedTime > 60 * 1:
         logging.debug('Refreshing song cache')
         playlists = getCentova(PLAYLIST_URL)[0]
         songs = []
