@@ -139,12 +139,13 @@ async def on_ready():
     player.start()
     lastPlayerPlaying = True
     while True:
-        if not player.is_playing():
-            player.stop()
         if currentDate != datetime.datetime.now().date():
             await client.logout()
             logging.info("Bot Shutting Down... (Daily Restart)")
             sys.exit(1)
+        if not player.is_playing():
+            player.stop()
+        await asyncio.sleep(2)
         text = getRadioSong()
         if text != radioMeta or lastPlayerPlaying != player.is_playing():
             radioMeta = text
@@ -162,7 +163,7 @@ async def on_ready():
         if not player.is_playing():
             player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
             player.start()
-        await asyncio.sleep(5)
+        await asyncio.sleep(3)
 
 @client.event
 async def on_message(message):
