@@ -26,8 +26,6 @@ curSongLength = 0
 songCachedData = ''
 songCachedTime = 0
 
-voiceOffline = 0
-
 def getRadioSong():
     try:
         response = urlopen(METADATA_URL)
@@ -139,27 +137,31 @@ async def on_ready():
     v = await client.join_voice_channel(c)
     player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
     player.start()
+    lastPlayerPlaying = True
     while True:
-        global voiceOffline
-        if "stopped daemon" in str(player) and voiceOffline == 0:
-            voiceOffline = 1
+        if not player.is_playing():
+            player.stop()
         if currentDate != datetime.datetime.now().date():
             await client.logout()
             logging.info("Bot Shutting Down... (Daily Restart)")
             sys.exit(1)
         text = getRadioSong()
-        if text != radioMeta or voiceOffline == 1:
+        if text != radioMeta or lastPlayerPlaying != player.is_playing():
             radioMeta = text
             status = Game(name=text, type=0)
             updateCurrentSongLength(radioMeta)
-            if voiceOffline != 1 and voiceOffline != 2:
+            if player.is_playing():
                 global lastMetaUpdate
+                lastPlayerPlaying = True
                 lastMetaUpdate = datetime.datetime.now()
                 await client.change_presence(game=status)
             else:
-                voiceOffline = 2
+                lastPlayerPlaying = False
                 await client.change_presence(game=status, status=discord.Status.dnd)
         postListenersCount()
+        if not player.is_playing():
+            player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
+            player.start()
         await asyncio.sleep(5)
 
 @client.event
