@@ -3,8 +3,6 @@ import discord
 from discord import Game, Channel, Server, Embed
 import asyncio
 import logging
-from urllib.request import urlopen
-import urllib.parse
 from html import unescape
 import subprocess
 import time
@@ -27,18 +25,19 @@ songCachedData = ''
 songCachedTime = 0
 
 def getRadioSong():
+    global backupMetadata
+    loop = asyncio.get_event_loop()
     try:
-        response = urlopen(METADATA_URL)
+        response = requests.get(METADATA_URL)
         backupMetadata = False
     except:
         try:
-            response = urlopen(METADATA_BACKUP_URL)
+            response = requests.get(METADATA_BACKUP_URL)
             backupMetadata = True
         except:
             return "Nada en concreto :V" # Nothing in peculiar
-    xsl = response.read()
-    hr_json = str(xsl.decode("utf-8"))
-    return unescape(hr_json[hr_json.find("<SONGTITLE>")+11:hr_json.find("</SONGTITLE>")])
+    xsl = response.text
+    return unescape(xsl[xsl.find("<SONGTITLE>")+11:xsl.find("</SONGTITLE>")])
 
 def centovaGetLoginCookie(url, username, password):
     payload = {'username': username, 'password': password, 'login': 'Login'}
@@ -146,7 +145,10 @@ async def on_ready():
         if not player.is_playing():
             player.stop()
         await asyncio.sleep(2)
-        text = getRadioSong()
+        try:
+            text = getRadioSong()
+        except:
+            pass
         if text != radioMeta or lastPlayerPlaying != player.is_playing():
             radioMeta = text
             status = Game(name=text, type=0)
@@ -316,9 +318,14 @@ async def on_message(message):
     elif message.content.lower().startswith('!cambiaravatar'): # !changeavatar
         await client.send_typing(message.channel)
         if isBotAdmin(message):
-            f = urlopen(str(message.content)[14:])
-            await client.edit_profile(avatar=f.read())
-            await client.send_message(message.channel, "Avatar cambiado a " + str(message.content)[13:] + "con exito!") #"Successfully changed the avatar to " + str(message.content)[13:] + "!"
+            msg = str(message.content).split()[1]
+            if msg.lower() != "none":
+                f = requests.get(msg)
+                await client.edit_profile(avatar=f.content)
+                await client.send_message(message.channel, "Avatar cambiado a " + str(message.content)[13:] + "con exito!") #"Successfully changed the avatar to " + str(message.content)[13:] + "!"
+            else:
+                await client.edit_profile(avatar=None)
+                await client.send_message(message.channel, "Avatar cambiado a 'none' con exito!")
         else:
             await client.send_message(message.channel, "I'm sorry, this is an **admin only** command!")
     elif message.content.lower().startswith('!reiniciar'): # !restart
