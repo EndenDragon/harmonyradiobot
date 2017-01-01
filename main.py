@@ -26,7 +26,6 @@ songCachedTime = 0
 
 def getRadioSong():
     global backupMetadata
-    loop = asyncio.get_event_loop()
     try:
         response = requests.get(METADATA_URL)
         backupMetadata = False
