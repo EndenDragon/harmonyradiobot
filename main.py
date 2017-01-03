@@ -10,7 +10,7 @@ import datetime
 import sys
 import requests
 import json
-from fuzzywuzzy import fuzz, process
+from fuzzywuzzy import fuzz
 
 client = discord.Client()
 logging.basicConfig(filename='harmonybot.log',level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
