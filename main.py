@@ -124,6 +124,8 @@ def updateCurrentSongLength(currentsong):
     curSongLength = 0
 
 def matchingString(s1, s2):
+    if s1 == s2:
+        return True, 100
     if s1 in s2 or s2 in s1:
         return True, 90
     tokenRatio = fuzz.token_sort_ratio(s1, s2)
