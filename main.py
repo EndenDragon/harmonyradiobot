@@ -10,6 +10,7 @@ import datetime
 import sys
 import requests
 import json
+from fuzzywuzzy import fuzz, process
 
 client = discord.Client()
 logging.basicConfig(filename='harmonybot.log',level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -23,6 +24,13 @@ curSongLength = 0
 
 songCachedData = ''
 songCachedTime = 0
+
+class SongRank:
+    def __init__(self, songid, rank, title, author):
+        self.songid = songid
+        self.rank = rank
+        self.title = title
+        self.author = author
 
 def getRadioSong():
     global backupMetadata
@@ -114,6 +122,20 @@ def updateCurrentSongLength(currentsong):
             curSongLength = s["length"]
             return
     curSongLength = 0
+
+def matchingString(s1, s2):
+    if s1 in s2 or s2 in s1:
+        return True, 90
+    tokenRatio = fuzz.token_sort_ratio(s1, s2)
+    if tokenRatio > 70:
+        return True, tokenRatio
+    partialRatio = fuzz.partial_ratio(s1,s2)
+    if partialRatio > 60:
+        return True, partialRatio
+    genRatio = fuzz.ratio(s1,s2)
+    if genRatio > 70:
+        return True, genRatio
+    return False, 0
 
 @client.event
 async def on_ready():
@@ -237,17 +259,32 @@ async def on_message(message):
             songs = getSongs['songs']
             artists = getSongs['artists']
             query = str(message.content).split(' ', 1)[1]
-            count = 0
-            overcount = 0
+            resultlist = []
             em.set_author(name="Buscar canciones: " + query, url="http://ponyharmony.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png") #"**__Search Songs: " + query
             for element in songs:
-                if query.lower() in str(artists['i' + str(element['artistid'])]).lower() or query.lower() in element['title'].lower():
-                    if count < 20:
-                        em.add_field(name=str(element['id']), value="**" + element['title'] + "**\n*" + artists['i' + str(element['artistid'])] + "*")
+                que = query.lower()
+                art = str(artists['i' + str(element['artistid'])]).lower()
+                tit = element['title'].lower()
+                rank = 0
+                matchArtist, arank = matchingString(que, art)
+                matchTitle, trank = matchingString(que, tit)
+                rank = max(arank, trank)
+                if matchArtist or matchTitle:
+                    sr = SongRank(str(element['id']), rank, element['title'], artists['i' + str(element['artistid'])])
+                    resultlist.append(sr)
+            count = 0
+            overcount = 0
+            if len(resultlist) != 0:
+                resultlist = sorted(resultlist, key=lambda x: x.rank, reverse=True)
+                for x in resultlist:
+                    if count < 24:
+                        em.add_field(name=str(x.songid), value="**" + x.title + "**\n*" + x.author + "*")
                         count = count + 1
                     else:
                         overcount = overcount + 1
-            if overcount != 0:
+            if len(resultlist) == 0:
+                em.add_field(name="No hay resultados que coincidan.", value="\u200b", inline=False) # No matching results found
+            elif overcount != 0:
                 em.add_field(name="*...y " + str(overcount) + " aun mas no mostrado*", value="\u200b", inline=False) #"*...and " + str(overcount) + " more results not shown*"
             await client.send_message(message.channel, message.author.mention, embed=em)
     elif message.content.lower().startswith('!pedir') or message.content.lower().startswith('!p'): # !request !req
