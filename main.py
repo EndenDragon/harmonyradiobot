@@ -10,17 +10,20 @@ import datetime
 import sys
 import requests
 import json
+from random import randint
 from fuzzywuzzy import fuzz
 
 client = discord.Client()
 logging.basicConfig(filename='harmonybot.log',level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('HarmonyBot')
 
+exitCode = 0
 currentDate = datetime.datetime.now().date()
 centovaCookie = ""
 backupMetadata = False
 lastMetaUpdate = datetime.datetime.now()
 curSongLength = 0
+lastListenersCount = 0
 
 songCachedData = ''
 songCachedTime = 0
@@ -95,8 +98,11 @@ def postListenersCount():
         for m in voicechannelmembers:
             if not m.voice.deaf and not m.voice.self_deaf and not m.bot:
                 count = count + 1
-        payload = {'count': count, 'key': METADATA_PRIMARY_API_KEY}
-        requests.post(METADATA_URL, data=payload)
+        global lastListenersCount
+        if lastListenersCount != count:
+            payload = {'count': count, 'key': METADATA_PRIMARY_API_KEY}
+            requests.post(METADATA_URL, data=payload)
+            lastListenersCount = count
 
 def updateCurrentSongLength(currentsong):
     global curSongLength
@@ -152,32 +158,49 @@ async def on_ready():
     for x in client.servers:
         print(x.name)
     print('------')
+
+async def background_loop():
+    await client.wait_until_ready()
+    global lastMetaUpdate
     radioMeta = ""
     centovaLogin()
     c = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice)
-    global v
+    global v, exitCode, backupMetadata
     v = await client.join_voice_channel(c)
     player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
     player.start()
     lastPlayerPlaying = True
-    while True:
+    initialStart = True
+    initialHasSong = False
+    last_usingBackupMetadata = backupMetadata
+    while not client.is_closed:
         if currentDate != datetime.datetime.now().date():
             await client.logout()
             logging.info("Bot Shutting Down... (Daily Restart)")
-            sys.exit(1)
+            exitCode = 1
         if not player.is_playing():
             player.stop()
         await asyncio.sleep(2)
         try:
-            text = getRadioSong()
+            if last_usingBackupMetadata != backupMetadata:
+                last_usingBackupMetadata = backupMetadata
+                initialStart = True
+                initialHasSong = False
+            spotCheck = randint(0,9) < randint(2,4)
+            pastCurrentSong = int((datetime.datetime.now() - lastMetaUpdate).total_seconds()) > int(curSongLength)
+            if pastCurrentSong or initialStart or spotCheck:
+                text = getRadioSong()
         except:
             pass
         if text != radioMeta or lastPlayerPlaying != player.is_playing():
+            if initialStart and not initialHasSong:
+                initialHasSong = True
+            elif initialHasSong and initialStart:
+                initialStart = False
             radioMeta = text
             status = Game(name=text, type=0)
             updateCurrentSongLength(radioMeta)
             if player.is_playing():
-                global lastMetaUpdate
                 lastPlayerPlaying = True
                 lastMetaUpdate = datetime.datetime.now()
                 await client.change_presence(game=status)
@@ -189,6 +212,8 @@ async def on_ready():
             player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
             player.start()
         await asyncio.sleep(3)
+    sys.exit(exitCode)
+
 
 @client.event
 async def on_message(message):
@@ -371,12 +396,13 @@ async def on_message(message):
         if isBotAdmin(message):
             await client.send_message(message.channel, "Reiniciando HarmonyBot...") #"HarmonyBot is restarting..."
             await client.logout()
+            global exitCode
             if len(message.content.split()) != 1 and message.content.split()[1].lower() == 'update':
                 logging.info("Bot Shutting Down... (User Invoked w/update)")
-                sys.exit(2)
+                exitCode = 2
             else:
                 logging.info("Bot Shutting Down... (User Invoked)")
-                sys.exit(1)
+                exitCode = 1
         else:
             await client.send_message(message.channel, "Lo siento este es un comando **solo para el admin**!") #"I'm sorry, this is an **admin only** command!"
     elif message.content.lower().startswith('!abrasar'): # !hug
@@ -386,4 +412,5 @@ async def on_message(message):
             members = members + " " + x.mention
         await client.send_message(message.channel, ":heartbeat: *Abrasa " + members + "!* :heartbeat:") #":heartbeat: *Hugs " + members + "!* :heartbeat:"
 
+client.loop.create_task(background_loop())
 client.run(DISCORD_BOT_TOKEN)
