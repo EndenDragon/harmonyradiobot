@@ -23,9 +23,7 @@ centovaCookie = ""
 backupMetadata = False
 lastMetaUpdate = datetime.datetime.now()
 currentMetadata = ""
-curSongLength = 0
-lastListenersCount = 0
-
+curSongLength = 0 
 songCachedData = ''
 songCachedTime = 0
 
@@ -98,12 +96,10 @@ def postListenersCount():
         count = 0
         for m in voicechannelmembers:
             if not m.voice.deaf and not m.voice.self_deaf and not m.bot:
-                count = count + 1
-        global lastListenersCount
-        if lastListenersCount != count:
-            payload = {'count': count, 'key': METADATA_PRIMARY_API_KEY}
-            requests.post(METADATA_URL, data=payload)
-            lastListenersCount = count
+                count = count + 1 
+        payload = {'count': count, 'key': METADATA_PRIMARY_API_KEY}
+        requests.post(METADATA_URL, data=payload)
+        lastListenersCount = count
 
 def updateCurrentSongLength(currentsong):
     global curSongLength
