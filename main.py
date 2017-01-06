@@ -23,7 +23,7 @@ centovaCookie = ""
 backupMetadata = False
 lastMetaUpdate = datetime.datetime.now()
 currentMetadata = ""
-curSongLength = 0 
+curSongLength = 0
 songCachedData = ''
 songCachedTime = 0
 
