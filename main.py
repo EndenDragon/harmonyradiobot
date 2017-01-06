@@ -96,7 +96,7 @@ def postListenersCount():
         count = 0
         for m in voicechannelmembers:
             if not m.voice.deaf and not m.voice.self_deaf and not m.bot:
-                count = count + 1 
+                count = count + 1
         payload = {'count': count, 'key': METADATA_PRIMARY_API_KEY}
         requests.post(METADATA_URL, data=payload)
         lastListenersCount = count
