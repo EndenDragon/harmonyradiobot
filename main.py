@@ -22,6 +22,7 @@ currentDate = datetime.datetime.now().date()
 centovaCookie = ""
 backupMetadata = False
 lastMetaUpdate = datetime.datetime.now()
+currentMetadata = ""
 curSongLength = 0
 lastListenersCount = 0
 
@@ -161,8 +162,7 @@ async def on_ready():
 
 async def background_loop():
     await client.wait_until_ready()
-    global lastMetaUpdate
-    radioMeta = ""
+    global lastMetaUpdate, currentMetadata
     centovaLogin()
     c = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice)
     global v, exitCode, backupMetadata
@@ -192,14 +192,14 @@ async def background_loop():
                 text = getRadioSong()
         except:
             pass
-        if text != radioMeta or lastPlayerPlaying != player.is_playing():
+        if text != currentMetadata or lastPlayerPlaying != player.is_playing():
             if initialStart and not initialHasSong:
                 initialHasSong = True
             elif initialHasSong and initialStart:
                 initialStart = False
-            radioMeta = text
+            currentMetadata = text
             status = Game(name=text, type=0)
-            updateCurrentSongLength(radioMeta)
+            updateCurrentSongLength(currentMetadata)
             if player.is_playing():
                 lastPlayerPlaying = True
                 lastMetaUpdate = datetime.datetime.now()
@@ -268,7 +268,8 @@ async def on_message(message):
         await client.send_message(message.channel, about)
     elif message.content.lower().startswith('!nowplaying') or message.content.lower().startswith('!np'):
         await client.send_typing(message.channel)
-        hr_txt = getRadioSong()
+        global currentMetadata
+        hr_txt = currentMetadata
         global curSongLength
         global lastMetaUpdate
         timing = str(datetime.timedelta(seconds=int((datetime.datetime.now() - lastMetaUpdate).total_seconds()))) + " / " + str(datetime.timedelta(seconds=int(curSongLength)))
