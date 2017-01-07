@@ -183,7 +183,7 @@ async def background_loop():
                 initialStart = True
                 initialHasSong = False
             spotCheck = randint(0,9) < randint(2,4)
-            pastCurrentSong = int((datetime.datetime.now() - lastMetaUpdate).total_seconds()) > int(curSongLength)
+            pastCurrentSong = int(curSongLength) - int((datetime.datetime.now() - lastMetaUpdate).total_seconds()) < 30
             if pastCurrentSong or initialStart or spotCheck:
                 text = getRadioSong()
         except:
