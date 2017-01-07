@@ -391,8 +391,7 @@ async def on_message(message):
     elif message.content.lower().startswith('!reiniciar'): # !restart
         await client.send_typing(message.channel)
         if isBotAdmin(message):
-            await client.send_message(message.channel, "Reiniciando HarmonyBot...") #"HarmonyBot is restarting..."
-            await client.logout()
+            await client.send_message(message.channel, "Reiniciando HarmonyBot...") #"HarmonyBot is restarting... 
             global exitCode
             if len(message.content.split()) != 1 and message.content.split()[1].lower() == 'update':
                 logging.info("Bot Shutting Down... (User Invoked w/update)")
@@ -400,6 +399,7 @@ async def on_message(message):
             else:
                 logging.info("Bot Shutting Down... (User Invoked)")
                 exitCode = 1
+            await client.logout()
         else:
             await client.send_message(message.channel, "Lo siento este es un comando **solo para el admin**!") #"I'm sorry, this is an **admin only** command!"
     elif message.content.lower().startswith('!abrasar'): # !hug
