@@ -17,7 +17,6 @@ client = discord.Client()
 logging.basicConfig(filename='harmonybot.log',level=logging.INFO,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 logger = logging.getLogger('HarmonyBot')
 
-exitCode = 0
 currentDate = datetime.datetime.now().date()
 centovaCookie = ""
 backupMetadata = False
@@ -161,7 +160,7 @@ async def background_loop():
     global lastMetaUpdate, currentMetadata
     centovaLogin()
     c = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice)
-    global v, exitCode, backupMetadata
+    global v, backupMetadata
     v = await client.join_voice_channel(c)
     player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
     player.start()
@@ -174,6 +173,7 @@ async def background_loop():
             await client.logout()
             logging.info("Bot Shutting Down... (Daily Restart)")
             exitCode = 1
+            sys.exit(exitCode)
         if not player.is_playing():
             player.stop()
         await asyncio.sleep(2)
@@ -208,7 +208,6 @@ async def background_loop():
             player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
             player.start()
         await asyncio.sleep(3)
-    sys.exit(exitCode)
 
 
 @client.event
@@ -392,7 +391,6 @@ async def on_message(message):
         await client.send_typing(message.channel)
         if isBotAdmin(message):
             await client.send_message(message.channel, "Reiniciando HarmonyBot...") #"HarmonyBot is restarting... 
-            global exitCode
             if len(message.content.split()) != 1 and message.content.split()[1].lower() == 'update':
                 logging.info("Bot Shutting Down... (User Invoked w/update)")
                 exitCode = 2
@@ -400,6 +398,7 @@ async def on_message(message):
                 logging.info("Bot Shutting Down... (User Invoked)")
                 exitCode = 1
             await client.logout()
+            sys.exit(exitCode)
         else:
             await client.send_message(message.channel, "Lo siento este es un comando **solo para el admin**!") #"I'm sorry, this is an **admin only** command!"
     elif message.content.lower().startswith('!abrasar'): # !hug
