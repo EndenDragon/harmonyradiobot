@@ -130,15 +130,15 @@ def matchingString(s1, s2):
     if s1 == s2:
         return True, 100
     if s1 in s2 or s2 in s1:
-        return True, 90
-    tokenRatio = fuzz.token_sort_ratio(s1, s2)
-    if tokenRatio > 70:
-        return True, tokenRatio
+        return True, 95
     partialRatio = fuzz.partial_ratio(s1,s2)
-    if partialRatio > 60:
+    if partialRatio > 90:
         return True, partialRatio
+    tokenRatio = fuzz.token_sort_ratio(s1, s2)
+    if tokenRatio > 85:
+        return True, tokenRatio
     genRatio = fuzz.ratio(s1,s2)
-    if genRatio > 70:
+    if genRatio > 85:
         return True, genRatio
     return False, 0
 
