@@ -83,19 +83,28 @@ def getSongList():
     return songCachedData
 
 def isBotAdmin(message):
-    author = client.get_server(str(MAIN_SERVER)).get_member(message.author.id)
-    for a in author.roles:
-        if a.name.lower() == ADMIN_ROLE_NAME.lower():
-            return True
+    if message.server is None:
+        for server, channel in MUSIC_CHANNELS.items():
+            author = client.get_server(str(server)).get_member(message.author.id)
+            if author is not None:
+                for a in author.roles:
+                    if a.name.lower() == ADMIN_ROLE_NAME.lower():
+                        return True
+    else:
+        author = client.get_server(str(message.server.id)).get_member(message.author.id)
+        for a in author.roles:
+            if a.name.lower() == ADMIN_ROLE_NAME.lower():
+                return True
     return False
 
 def postListenersCount():
     if ENABLE_POSTING_LISTENERS and not backupMetadata:
-        voicechannelmembers = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice).voice_members
         count = 0
-        for m in voicechannelmembers:
-            if not m.voice.deaf and not m.voice.self_deaf and not m.bot:
-                count = count + 1
+        for server, channel in MUSIC_CHANNELS.items():
+            voicechannelmembers = discord.utils.get(client.get_server(str(server)).channels, id=str(channel), type=discord.ChannelType.voice).voice_members
+            for m in voicechannelmembers:
+                if not m.voice.deaf and not m.voice.self_deaf and not m.bot:
+                    count = count + 1
         payload = {'count': count, 'key': METADATA_PRIMARY_API_KEY}
         requests.post(METADATA_URL, data=payload)
         lastListenersCount = count
@@ -159,11 +168,15 @@ async def background_loop():
     await client.wait_until_ready()
     global lastMetaUpdate, currentMetadata
     centovaLogin()
-    c = discord.utils.get(client.get_server(str(MAIN_SERVER)).channels, id=str(MUSIC_CHANNEL), type=discord.ChannelType.voice)
-    global v, backupMetadata
-    v = await client.join_voice_channel(c)
-    player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
-    player.start()
+    global voice
+    voice = {}
+    player = {}
+    for server, channel in MUSIC_CHANNELS.items():
+        c = discord.utils.get(client.get_server(str(server)).channels, id=str(channel), type=discord.ChannelType.voice)
+        voice[server] = await client.join_voice_channel(c)
+        player[server] = voice[server].create_ffmpeg_player(MUSIC_STREAM_URL)
+        player[server].start()
+    global backupMetadata
     lastPlayerPlaying = True
     initialStart = True
     initialHasSong = False
@@ -174,8 +187,9 @@ async def background_loop():
             logging.info("Bot Shutting Down... (Daily Restart)")
             exitCode = 1
             sys.exit(exitCode)
-        if not player.is_playing():
-            player.stop()
+        if not player[next(iter(MUSIC_CHANNELS))].is_playing():
+            for server in player.keys():
+                player[server].stop()
         await asyncio.sleep(2)
         try:
             if last_usingBackupMetadata != backupMetadata:
@@ -188,7 +202,7 @@ async def background_loop():
                 text = getRadioSong()
         except:
             pass
-        if text != currentMetadata or lastPlayerPlaying != player.is_playing():
+        if text != currentMetadata or lastPlayerPlaying != player[next(iter(MUSIC_CHANNELS))].is_playing():
             if initialStart and not initialHasSong:
                 initialHasSong = True
             elif initialHasSong and initialStart:
@@ -196,7 +210,7 @@ async def background_loop():
             currentMetadata = text
             status = Game(name=text, type=0)
             updateCurrentSongLength(currentMetadata)
-            if player.is_playing():
+            if player[next(iter(MUSIC_CHANNELS))].is_playing():
                 lastPlayerPlaying = True
                 lastMetaUpdate = datetime.datetime.now()
                 await client.change_presence(game=status)
@@ -204,9 +218,10 @@ async def background_loop():
                 lastPlayerPlaying = False
                 await client.change_presence(game=status, status=discord.Status.dnd)
         postListenersCount()
-        if not player.is_playing():
-            player = v.create_ffmpeg_player(MUSIC_STREAM_URL)
-            player.start()
+        if not player[next(iter(MUSIC_CHANNELS))].is_playing():
+            for server in player.keys():
+                player[server] = voice[server].create_ffmpeg_player(MUSIC_STREAM_URL)
+                player[server].start()
         await asyncio.sleep(3)
 
 
@@ -358,7 +373,7 @@ async def on_message(message):
         await client.send_message(message.channel, text)
     elif message.content.lower().startswith('!joinvoice') or message.content.lower().startswith('!jv'):
         await client.send_typing(message.channel)
-        if isBotAdmin(message) or int(str(message.author.voice_channel.id)) in TRUSTED_VOICE_CHANNELS:
+        if isBotAdmin(message) or int(str(message.author.voice_channel.id)) in MUSIC_CHANNELS.keys():
             c = discord.utils.get(message.server.channels, id=message.author.voice_channel.id)
             global v
             v = await client.join_voice_channel(c)
