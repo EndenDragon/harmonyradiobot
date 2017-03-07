@@ -100,8 +100,9 @@ def isBotAdmin(message):
 def postListenersCount():
     if ENABLE_POSTING_LISTENERS and not backupMetadata:
         count = 0
-        for server, channel in MUSIC_CHANNELS.items():
-            voicechannelmembers = discord.utils.get(client.get_server(str(server)).channels, id=str(channel), type=discord.ChannelType.voice).voice_members
+        voice_clients = client.voice_clients
+        for voiced in voice_clients:
+            voicechannelmembers = voiced.channel.voice_members
             for m in voicechannelmembers:
                 if not m.voice.deaf and not m.voice.self_deaf and not m.bot:
                     count = count + 1
