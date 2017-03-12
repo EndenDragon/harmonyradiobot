@@ -82,6 +82,17 @@ def getSongList():
         songCachedTime = time.time()
     return songCachedData
 
+def getSongRequests():
+    playlists = getCentova(PLAYLIST_URL)[0]
+    songs = []
+    artists = {}
+    for p in playlists:
+        if p['type'] == 'request' and p["status"] == "enabled":
+            s = getCentova(SONG_TRACKS_URL + str(p['id']))
+            songs += s[1]
+            artists.update(s[2])
+    return {'songs': songs, 'artists': artists}
+
 def isBotAdmin(message):
     if message.server is None:
         for server, channel in MUSIC_CHANNELS.items():
@@ -287,6 +298,22 @@ async def on_message(message):
         em = Embed(colour=0x9BDBF5)
         em.set_author(name='Estas escuchando', url="http://ponyharmony.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png") # **Now Playing:**
         em.add_field(name=str(hr_txt), value=timing)
+        await client.send_message(message.channel, message.author.mention, embed=em)
+    elif message.content.lower().startswith('!cola'):
+        await client.send_typing(message.channel)
+        getrequests = getSongRequests()
+        songs = getrequests['songs']
+        artists = getrequests['artists']
+        em = Embed(colour=0x9BDBF5)
+        em.set_author(name="Lista de canciones solicitadas ({}): ".format(str(len(songs))), url="http://ponyharmony.com/", icon_url="https://cdn.discordapp.com/attachments/224735647485788160/258390514867503104/350x3502.png") # list of requested songs
+        if len(songs) == 0:
+            em.add_field(name="No hay canciones en cola.", value="\u200b", inline=False) # there are no songs in the queue
+        else:
+            for index, element in enumerate(songs):
+                if index < 20:
+                    em.add_field(name=str(element['id']), value="**" + element['title'] + "**\n*" + artists['i' + str(element['artistid'])] + "*")
+            if len(songs) > 20:
+                em.add_field(name="*...y " + str(len(songs) - 20) + " aun mas no mostrado*", value="\u200b", inline=False)
         await client.send_message(message.channel, message.author.mention, embed=em)
     elif message.content.lower().startswith('!buscar'): # !search
         await client.send_typing(message.channel)
