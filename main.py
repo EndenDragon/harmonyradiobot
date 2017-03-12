@@ -49,7 +49,7 @@ def getRadioSong():
 
 def centovaGetLoginCookie(url, username, password):
     payload = {'username': username, 'password': password, 'login': 'Login'}
-    r = requests.head(url, data=payload, allow_redirects=False)
+    r = requests.post(url, data=payload, allow_redirects=False)
     return r.cookies['centovacast']
 
 def centovaLogin():
