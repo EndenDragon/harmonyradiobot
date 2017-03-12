@@ -247,6 +247,7 @@ async def on_message(message):
         `!nowplaying` - Muestra que esta sonando en este momento.
         `!buscar <query>` - Busca el titulo de una cancion o autor con la palabra dada.
         `!pedir <id>` - Pedir una cancion con la id dada.
+        `!cola` - Lista de todas las canciones solicitadas.
         `!lista (index)` - Listas de canciones que la radio ofrece.
         ----------------------
         `!joinvoice` - Une el bot al canal de voz con la persona que escribio el comando.
