@@ -65,7 +65,7 @@ class HarmonyBot(discord.Client):
                 members = channel.members
                 count = 0
                 for member in members:
-                    if member != member.guild.me and not member.voice.deaf and not member.voice.self_deaf and not member.voice.afk:
+                    if member != member.guild.me and not member.voice.deaf and not member.voice.self_deaf:
                         count = count + 1
                 await asyncio.sleep(1)
                 if count > 0:
