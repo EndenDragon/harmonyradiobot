@@ -52,21 +52,46 @@ class HarmonyBot(discord.Client):
         print(self.user.id)
         print('------')
         
-        await self.connect_voice()
+        await self.update_voice()
         
-    async def connect_voice(self):
-        for channelid in config["music-channels"]:
+    async def update_voice(self, channel_id=None):
+        if channel_id:
+            channels = [channel_id]
+        else:
+            channels = config["music-channels"]
+        for channelid in channels:
             channel = self.get_channel(channelid)
             if channel and isinstance(channel, discord.VoiceChannel):
-                voice_client = await channel.connect()
-                self.loop.run_in_executor(None, self.play_voice, voice_client)
+                members = channel.members
+                count = 0
+                for member in members:
+                    if member != member.guild.me and not member.voice.deaf and not member.voice.self_deaf and not member.voice.afk:
+                        count = count + 1
+                await asyncio.sleep(1)
+                if count > 0:
+                    await self.connect_voice(channel)
+                else:
+                    await self.disconnect_voice(channel)
+                    
+    async def connect_voice(self, channel):
+        for voice in self.voice_clients:
+            if voice.channel == channel and voice.is_connected():
+                return
+        voice_client = await channel.connect()
+        self.loop.run_in_executor(None, self.play_voice, voice_client)
 
     def play_voice(self, voice_client):
-        while not self.is_closed():
+        while not self.is_closed() and voice_client.is_connected():
             if not voice_client.is_playing():
                 audio_source = discord.FFmpegPCMAudio(shlex.quote(config["shoutcast-url"] + "/stream"))
                 voice_client.play(audio_source, after=self.on_voice_error)
                 time.sleep(10)
+                
+    async def disconnect_voice(self, channel):
+        for voice in self.voice_clients:
+            if voice.channel == channel and voice.is_connected():
+                voice.stop()
+                await voice.disconnect()
     
     def on_voice_error(self, error):
         print("Voice Error!!!", error)
@@ -90,3 +115,9 @@ class HarmonyBot(discord.Client):
             type = discord.ActivityType.listening
         )
         await self.change_presence(activity=activity)
+        
+    async def on_voice_state_update(self, member, before, after):
+        if before and before.channel:
+            await self.update_voice(before.channel.id)
+        if after and after.channel:
+            await self.update_voice(after.channel.id)
