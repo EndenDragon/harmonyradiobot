@@ -59,8 +59,14 @@ class HarmonyBot(discord.Client):
             channel = self.get_channel(channelid)
             if channel and isinstance(channel, discord.VoiceChannel):
                 voice_client = await channel.connect()
+                self.loop.create_task(self.play_voice(voice_client))
+
+    async def play_voice(self, voice_client):
+        while not self.is_closed():
+            if not voice_client.is_playing():
                 audio_source = discord.FFmpegPCMAudio(shlex.quote(config["shoutcast-url"] + "/stream"))
                 voice_client.play(audio_source, after=self.on_voice_error)
+                await asyncio.sleep(10)
     
     def on_voice_error(self, error):
         print("Voice Error!!!", error)
