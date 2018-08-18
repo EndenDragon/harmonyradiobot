@@ -56,6 +56,8 @@ class HarmonyBot(discord.Client):
         
     async def update_voice(self, channel_id=None):
         if channel_id:
+            if channel_id not in config["music-channels"]:
+                return
             channels = [channel_id]
         else:
             channels = config["music-channels"]
