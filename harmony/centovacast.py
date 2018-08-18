@@ -78,7 +78,7 @@ class CentovaCast():
                 xsl = await resp.text()
                 meta = html.unescape(xsl[xsl.find("<SONGTITLE>")+11:xsl.find("</SONGTITLE>")])
                 if " - " in meta and " [" in meta:
-                    title = meta[meta.index(" - ") + 3 : meta.index(" [") - 1]
+                    title = meta[meta.index(" - ") + 3 : meta.index(" [")]
                     artist = meta[ : meta.index(" - ")]
                 elif " - " in meta:
                     title = meta[meta.index(" - ") + 3]
