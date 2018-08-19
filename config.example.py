@@ -6,4 +6,6 @@ config = {
     "centovacast-url": "https://janus.shoutca.st/",
     "centovacast-username": "usr",
     "centovacast-password": "pass",
+    "custom-metadata-url": "http://metadata.url/",
+    "metadata-post-key": "key1",
 }

@@ -4,6 +4,7 @@ from harmony.centovacast import CentovaCast
 from harmony.opus_loader import load_opus_lib
 import discord
 import asyncio
+import aiohttp
 import time
 import shlex
 
@@ -67,13 +68,14 @@ class HarmonyBot(discord.Client):
                 members = channel.members
                 count = 0
                 for member in members:
-                    if member != member.guild.me and not member.voice.deaf and not member.voice.self_deaf:
+                    if not member.bot and not member.voice.deaf and not member.voice.self_deaf:
                         count = count + 1
                 await asyncio.sleep(1)
                 if count > 0:
                     await self.connect_voice(channel)
                 else:
                     await self.disconnect_voice(channel)
+        await self.post_voice_count()
                     
     async def connect_voice(self, channel):
         for voice in self.voice_clients:
@@ -97,6 +99,20 @@ class HarmonyBot(discord.Client):
     
     def on_voice_error(self, error):
         print("Voice Error!!!", error)
+        
+    async def post_voice_count(self):
+        count = 0
+        channels = config["music-channels"]
+        for channelid in channels:
+            channel = self.get_channel(channelid)
+            if channel and isinstance(channel, discord.VoiceChannel):
+                members = channel.members
+                for member in members:
+                    if not member.bot and not member.voice.deaf and not member.voice.self_deaf:
+                        count = count + 1
+        payload = {'key': config["metadata-post-key"], 'count': count}
+        async with aiohttp.ClientSession(loop=self.loop) as session:
+            await session.post(config["custom-metadata-url"], data=payload, allow_redirects=False)
         
     async def on_message(self, message):
         content = message.content
